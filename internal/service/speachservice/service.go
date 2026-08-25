@@ -4,7 +4,7 @@ package speachservice
 import (
 	"context"
 
-	"github.com/Piktet/tg_bot/internal/model"
+	"github.com/Piktet/MeetScribe/internal/model"
 
 	"golang.org/x/sync/errgroup"
 )

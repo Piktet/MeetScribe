@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/Piktet/tg_bot/internal/logger"
+	"github.com/Piktet/MeetScribe/internal/logger"
 )
 
 // SpeachConnection — структура подключения к SaluteSpeech API.

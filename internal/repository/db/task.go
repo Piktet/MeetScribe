@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/Piktet/tg_bot/internal/logger"
-	"github.com/Piktet/tg_bot/internal/model"
+	"github.com/Piktet/MeetScribe/internal/logger"
+	"github.com/Piktet/MeetScribe/internal/model"
 )
 
 // AddTask сохраняет результат задачи распознавания речи в базу данных.

@@ -6,8 +6,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Piktet/tg_bot/internal/model"
-	"github.com/Piktet/tg_bot/internal/repository/speach"
+	"github.com/Piktet/MeetScribe/internal/model"
+	"github.com/Piktet/MeetScribe/internal/repository/speach"
 )
 
 // SpeachTask — задача распознавания речи.

@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/Piktet/tg_bot/internal/logger"
+	"github.com/Piktet/MeetScribe/internal/logger"
 )
 
 // ChatConnection — структура подключения к GigaChat API.

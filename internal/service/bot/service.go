@@ -5,8 +5,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/Piktet/tg_bot/internal/model"
-	"github.com/Piktet/tg_bot/internal/repository/db"
+	"github.com/Piktet/MeetScribe/internal/model"
+	"github.com/Piktet/MeetScribe/internal/repository/db"
 
 	tele "gopkg.in/telebot.v3"
 )

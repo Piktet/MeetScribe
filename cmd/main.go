@@ -7,14 +7,14 @@ import (
 	"log"
 	"strings"
 
-	"github.com/Piktet/tg_bot/internal/config"
-	"github.com/Piktet/tg_bot/internal/logger"
-	"github.com/Piktet/tg_bot/internal/repository/chat"
-	"github.com/Piktet/tg_bot/internal/repository/db"
-	"github.com/Piktet/tg_bot/internal/repository/speach"
-	"github.com/Piktet/tg_bot/internal/service/bot"
-	"github.com/Piktet/tg_bot/internal/service/chatservice"
-	"github.com/Piktet/tg_bot/internal/service/speachservice"
+	"github.com/Piktet/MeetScribe/internal/config"
+	"github.com/Piktet/MeetScribe/internal/logger"
+	"github.com/Piktet/MeetScribe/internal/repository/chat"
+	"github.com/Piktet/MeetScribe/internal/repository/db"
+	"github.com/Piktet/MeetScribe/internal/repository/speach"
+	"github.com/Piktet/MeetScribe/internal/service/bot"
+	"github.com/Piktet/MeetScribe/internal/service/chatservice"
+	"github.com/Piktet/MeetScribe/internal/service/speachservice"
 	"golang.org/x/sync/errgroup"
 )
 

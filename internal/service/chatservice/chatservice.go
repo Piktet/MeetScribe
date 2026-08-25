@@ -5,7 +5,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/Piktet/tg_bot/internal/repository/chat"
+	"github.com/Piktet/MeetScribe/internal/repository/chat"
 )
 
 // ChatService — сервис для работы с GigaChat API.

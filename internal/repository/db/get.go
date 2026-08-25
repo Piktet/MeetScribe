@@ -5,8 +5,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/Piktet/tg_bot/internal/logger"
-	"github.com/Piktet/tg_bot/internal/model"
+	"github.com/Piktet/MeetScribe/internal/logger"
+	"github.com/Piktet/MeetScribe/internal/model"
 )
 
 const (

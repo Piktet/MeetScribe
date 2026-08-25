@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/Piktet/tg_bot/internal/logger"
+	"github.com/Piktet/MeetScribe/internal/logger"
 )
 
 // Message — сообщение в чате (роль и контент).

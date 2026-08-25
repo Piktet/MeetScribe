@@ -5,7 +5,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/Piktet/tg_bot/internal/logger"
+	"github.com/Piktet/MeetScribe/internal/logger"
 )
 
 // DBConnection — подключение к PostgreSQL.

@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Piktet/tg_bot/internal/logger"
-	"github.com/Piktet/tg_bot/internal/model"
-	"github.com/Piktet/tg_bot/internal/repository/db"
+	"github.com/Piktet/MeetScribe/internal/logger"
+	"github.com/Piktet/MeetScribe/internal/model"
+	"github.com/Piktet/MeetScribe/internal/repository/db"
 
 	"golang.org/x/sync/errgroup"
 	tele "gopkg.in/telebot.v3"

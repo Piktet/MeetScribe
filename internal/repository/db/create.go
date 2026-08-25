@@ -4,7 +4,7 @@ package db
 import (
 	"context"
 
-	"github.com/Piktet/tg_bot/internal/model"
+	"github.com/Piktet/MeetScribe/internal/model"
 )
 
 // createTablesSQL — DDL-скрипт для создания всех необходимых таблиц.

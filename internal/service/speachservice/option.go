@@ -4,7 +4,7 @@ package speachservice
 import (
 	"time"
 
-	"github.com/Piktet/tg_bot/internal/repository/speach"
+	"github.com/Piktet/MeetScribe/internal/repository/speach"
 )
 
 const defaultStatusTimeout = time.Second
