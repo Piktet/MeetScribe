@@ -73,14 +73,6 @@ type SpeechUploadResponse struct {
 	} `json:"result"`
 }
 
-// SpeachUploadResponse — ответ API на загрузку аудиофайла.
-type SpeachUploadResponse struct {
-	Status int `json:"status"`
-	Result struct {
-		FileID string `json:"request_file_id"`
-	} `json:"result"`
-}
-
 // SpeechCreateTaskOptionRequest — параметры создания задачи распознавания.
 type SpeechCreateTaskOptionRequest struct {
 	AudioEncoding string `json:"audio_encoding"`

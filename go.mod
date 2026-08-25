@@ -1,4 +1,4 @@
-module github.com/Piktet/tg_bot
+module github.com/Piktet/MeetScribe
 
 go 1.26.5
 
