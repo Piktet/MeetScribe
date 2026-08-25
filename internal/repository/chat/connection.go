@@ -11,8 +11,6 @@ import (
 	"time"
 
 	"github.com/Piktet/tg_bot/internal/logger"
-
-	"go.uber.org/zap"
 )
 
 // ChatConnection — структура подключения к GigaChat API.
@@ -47,14 +45,14 @@ type chatAuthResponse struct {
 func (p *ChatConnection) Connect(ctx context.Context) error {
 	u, err := url.JoinPath(p.host, "/api/v2/oauth")
 	if err != nil {
-		logger.Log().Error("connection to chat - create path error", zap.Error(err))
+		logger.Error(err, "connection to chat - create path error")
 		p.err = err
 		return err
 	}
 	data := []byte("scope=GIGACHAT_API_PERS")
 	r, err := http.NewRequestWithContext(ctx, "POST", u, bytes.NewReader(data))
 	if err != nil {
-		logger.Log().Error("connection to chat - create request", zap.Error(err))
+		logger.Error(err, "connection to chat - create request")
 		p.err = err
 		return err
 	}
@@ -66,7 +64,7 @@ func (p *ChatConnection) Connect(ctx context.Context) error {
 	client := &http.Client{}
 	resp, err := client.Do(r)
 	if err != nil {
-		logger.Log().Error("connection to chat - send request", zap.Error(err))
+		logger.Error(err, "connection to chat - send request")
 		p.err = err
 		return err
 	}
@@ -75,7 +73,7 @@ func (p *ChatConnection) Connect(ctx context.Context) error {
 
 	if resp.StatusCode != http.StatusOK {
 		err := errors.New("ошибка авторизации")
-		logger.Log().Error("connection to chat - get response", zap.Error(err))
+		logger.Error(err, "connection to chat - get response")
 		p.err = err
 		return err
 	}
@@ -83,7 +81,7 @@ func (p *ChatConnection) Connect(ctx context.Context) error {
 	var token chatAuthResponse
 	dec := json.NewDecoder(resp.Body)
 	if err := dec.Decode(&token); err != nil {
-		logger.Log().Error("connection to chat - decode result", zap.Error(err))
+		logger.Error(err, "connection to chat - decode result")
 		p.err = err
 		return err
 	}
@@ -93,7 +91,7 @@ func (p *ChatConnection) Connect(ctx context.Context) error {
 	t := time.Unix(token.Expires, 0)
 	time.AfterFunc(time.Until(t), func() {
 		if err := p.Connect(ctx); err != nil {
-			logger.Log().Error("chat reconnect error", zap.Error(err))
+			logger.Error(err, "chat reconnect error")
 			return
 		}
 	})

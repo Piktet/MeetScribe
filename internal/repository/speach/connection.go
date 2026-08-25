@@ -11,8 +11,6 @@ import (
 	"time"
 
 	"github.com/Piktet/tg_bot/internal/logger"
-
-	"go.uber.org/zap"
 )
 
 // SpeachConnection — структура подключения к SaluteSpeech API.
@@ -47,14 +45,14 @@ type SpeachAuthResponse struct {
 func (p *SpeachConnection) Connect(ctx context.Context) error {
 	u, err := url.JoinPath(p.host, "/api/v2/oauth")
 	if err != nil {
-		logger.Log().Error("connection to speach - create path error", zap.Error(err))
+		logger.Error(err, "connection to speach - create path error")
 		p.err = err
 		return err
 	}
 	data := []byte("scope=SALUTE_SPEECH_PERS")
 	r, err := http.NewRequestWithContext(ctx, "POST", u, bytes.NewReader(data))
 	if err != nil {
-		logger.Log().Error("connection to speach - create request", zap.Error(err))
+		logger.Error(err, "connection to speach - create request")
 		p.err = err
 		return err
 	}
@@ -66,7 +64,7 @@ func (p *SpeachConnection) Connect(ctx context.Context) error {
 	client := &http.Client{}
 	resp, err := client.Do(r)
 	if err != nil {
-		logger.Log().Error("connection to speach - send request", zap.Error(err))
+		logger.Error(err, "connection to speach - send request")
 		p.err = err
 		return err
 	}
@@ -75,7 +73,7 @@ func (p *SpeachConnection) Connect(ctx context.Context) error {
 
 	if resp.StatusCode != http.StatusOK {
 		err := errors.New("ошибка авторизации")
-		logger.Log().Error("connection to speach - get response", zap.Error(err))
+		logger.Error(err, "connection to speach - get response")
 		p.err = err
 		return err
 	}
@@ -83,7 +81,7 @@ func (p *SpeachConnection) Connect(ctx context.Context) error {
 	var token SpeachAuthResponse
 	dec := json.NewDecoder(resp.Body)
 	if err := dec.Decode(&token); err != nil {
-		logger.Log().Error("connection to speach - decode result", zap.Error(err))
+		logger.Error(err, "connection to speach - decode result")
 		p.err = err
 		return err
 	}
@@ -93,7 +91,7 @@ func (p *SpeachConnection) Connect(ctx context.Context) error {
 	t := time.Unix(token.Expires, 0)
 	time.AfterFunc(time.Until(t), func() {
 		if err := p.Connect(ctx); err != nil {
-			logger.Log().Error("speach reconnect error", zap.Error(err))
+			logger.Error(err, "speach reconnect error")
 			return
 		}
 	})

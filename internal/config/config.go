@@ -19,7 +19,6 @@ import (
 	"flag"
 	"os"
 	"strconv"
-	"sync"
 	"time"
 )
 
@@ -127,93 +126,88 @@ var (
 )
 
 // Config — структура для хранения конфигурации приложения.
-// Инициализируется один раз при первом вызове New() благодаря sync.Once.
 type Config struct {
 	list map[configType]*ConfigValue
 }
 
-var fn sync.Once
-
-// New создает и инициализирует структуру с конфигурацией.
-// Конфигурация загружается из флагов, переменных окружения, JSON-файла
-// и значений по умолчанию с приоритетом: файл > env > флаг > дефолт.
-// Функция потокобезопасна — инициализация происходит только один раз.
-func New() *Config {
-
-	fn.Do(func() {
-
-		for _, v := range configData {
-			v.value = v.defaultValue
-			v.source = sourceDefault
-			switch v.valueType {
-
-			case valueString:
-				for _, f := range v.flagName {
-					_ = flag.String(f, v.defaultValue.(string), v.description)
-				}
-			case valueBool:
-				for _, f := range v.flagName {
-					_ = flag.Bool(f, v.defaultValue.(bool), v.description)
-				}
-			case valueInt:
-				for _, f := range v.flagName {
-					_ = flag.Int(f, v.defaultValue.(int), v.description)
-				}
-			case valueDuration:
-				for _, f := range v.flagName {
-					_ = flag.Duration(f, v.defaultValue.(time.Duration), v.description)
-				}
+// Load выполняет регистрацию флагов, парсинг, загрузку из env и config-файла.
+// Вызывать один раз до создания Config через New().
+func Load() {
+	for _, v := range configData {
+		v.value = v.defaultValue
+		v.source = sourceDefault
+		switch v.valueType {
+		case valueString:
+			for _, f := range v.flagName {
+				_ = flag.String(f, v.defaultValue.(string), v.description)
 			}
-			if respEnv, ok := os.LookupEnv(v.envName); ok && respEnv != "" {
-				v.value = respEnv
-				v.source = sourceEnv
+		case valueBool:
+			for _, f := range v.flagName {
+				_ = flag.Bool(f, v.defaultValue.(bool), v.description)
+			}
+		case valueInt:
+			for _, f := range v.flagName {
+				_ = flag.Int(f, v.defaultValue.(int), v.description)
+			}
+		case valueDuration:
+			for _, f := range v.flagName {
+				_ = flag.Duration(f, v.defaultValue.(time.Duration), v.description)
 			}
 		}
+		if respEnv, ok := os.LookupEnv(v.envName); ok && respEnv != "" {
+			v.value = respEnv
+			v.source = sourceEnv
+		}
+	}
 
-		flag.Parse()
+	flag.Parse()
 
-		flag.Visit(func(flagValue *flag.Flag) {
-			if v, ok := configData[configType(flagValue.Name)]; ok {
-				v.source = sourceFlag
-				switch v.valueType {
-				case valueString:
-					v.value = flagValue.Value.String()
-				case valueBool:
-					v.value = flagValue.Value.String() == "true"
-				case valueInt:
-					v.value, _ = strconv.Atoi(flagValue.Value.String())
-				case valueDuration:
-					val, _ := strconv.ParseInt(flagValue.Value.String(), 10, 64)
-					v.value = time.Duration(val)
-				}
+	flag.Visit(func(flagValue *flag.Flag) {
+		if v, ok := configData[configType(flagValue.Name)]; ok {
+			v.source = sourceFlag
+			switch v.valueType {
+			case valueString:
+				v.value = flagValue.Value.String()
+			case valueBool:
+				v.value = flagValue.Value.String() == "true"
+			case valueInt:
+				v.value, _ = strconv.Atoi(flagValue.Value.String())
+			case valueDuration:
+				val, _ := strconv.ParseInt(flagValue.Value.String(), 10, 64)
+				v.value = time.Duration(val)
 			}
-		})
+		}
+	})
 
-		if confFile, ok := configData[configConfigFile]; ok {
-			if data, err := os.ReadFile(confFile.value.(string)); err == nil {
-				val := make(map[string]any)
-				if err = json.Unmarshal(data, &val); err == nil {
-					for k, v := range val {
-						if item, ok := configData[configType(k)]; ok {
-							if item.source == sourceDefault {
-								item.source = sourceConfig
-								switch item.valueType {
-								case valueString:
-									item.value = v.(string)
-								case valueBool:
-									item.value = v.(bool)
-								case valueInt:
-									item.value = v.(int)
-								case valueDuration:
-									item.value = v.(time.Duration)
-								}
+	if confFile, ok := configData[configConfigFile]; ok {
+		if data, err := os.ReadFile(confFile.value.(string)); err == nil {
+			val := make(map[string]any)
+			if err = json.Unmarshal(data, &val); err == nil {
+				for k, v := range val {
+					if item, ok := configData[configType(k)]; ok {
+						if item.source == sourceDefault {
+							item.source = sourceConfig
+							switch item.valueType {
+							case valueString:
+								item.value = v.(string)
+							case valueBool:
+								item.value = v.(bool)
+							case valueInt:
+								item.value = v.(int)
+							case valueDuration:
+								item.value = v.(time.Duration)
 							}
 						}
 					}
 				}
 			}
 		}
-	})
+	}
+}
+
+// New создаёт структуру конфигурации на основе уже загруженных данных.
+// Load() должен быть вызван ранее.
+func New() *Config {
 	return &Config{list: configData}
 }
 

@@ -8,8 +8,6 @@ import (
 
 	"github.com/Piktet/tg_bot/internal/logger"
 	"github.com/Piktet/tg_bot/internal/model"
-
-	"go.uber.org/zap"
 )
 
 // AddTask сохраняет результат задачи распознавания речи в базу данных.
@@ -27,7 +25,7 @@ func AddTask(ctx context.Context, conn model.Connection, task *model.SpeachTaskR
 		Status:        model.StatusDone,
 	}
 	if err := SaveTranscription(ctx, conn, t); err != nil {
-		logger.Log().Error("error AddTask - SaveTranscription", zap.Error(err))
+		logger.Error(err, "error AddTask - SaveTranscription")
 		return err
 	}
 	return nil

@@ -6,10 +6,6 @@ import (
 	"database/sql"
 
 	"github.com/Piktet/tg_bot/internal/logger"
-
-	_ "github.com/jackc/pgx/v5"
-	_ "github.com/jackc/pgx/v5/stdlib"
-	"go.uber.org/zap"
 )
 
 // DBConnection — подключение к PostgreSQL.
@@ -23,7 +19,7 @@ type DBConnection struct {
 func New(s string) (*DBConnection, error) {
 	conn, err := sql.Open("pgx", s)
 	if err != nil {
-		logger.Log().Error("error create connection", zap.Error(err))
+		logger.Error(err, "error create connection")
 		return nil, err
 	}
 	return &DBConnection{conn: conn}, nil

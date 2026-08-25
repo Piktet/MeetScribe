@@ -1,37 +1,66 @@
-// Package logger — логирование с использованием zap.
+// Package logger — обёртка над log/slog для структурированного логирования.
 package logger
 
 import (
-	"go.uber.org/zap"
+	"log/slog"
+	"os"
+	"strings"
 )
 
-var log *zap.Logger = zap.NewNop()
+var defaultLogger *slog.Logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+	Level: slog.LevelInfo,
+}))
 
-// Log возвращает экземпляр глобального логера.
-// Возвращает zap.NewNop() если InitLogger ещё не был вызван.
-func Log() *zap.Logger {
-	return log
+// Error logs an error-level message with the provided error.
+func Error(err error, msg string, args ...any) {
+	if err != nil {
+		defaultLogger.Error(msg, "err", err)
+	} else {
+		defaultLogger.Error(msg, args...)
+	}
 }
 
-// InitLogger инициализирует глобальный логер с указанным уровнем.
-// Принимает текстовый уровень логирования (например, "DEBUG", "INFO", "WARN", "ERROR").
-// Возвращает ошибку, если указанный уровень невалиден.
+// Warn logs a warning-level message.
+func Warn(msg string, args ...any) {
+	defaultLogger.Warn(msg, args...)
+}
+
+// Info logs an info-level message.
+func Info(msg string, args ...any) {
+	defaultLogger.Info(msg, args...)
+}
+
+// Debug logs a debug-level message.
+func Debug(msg string, args ...any) {
+	defaultLogger.Debug(msg, args...)
+}
+
+// With returns a new logger that includes the given key-value pairs in every log entry.
+func With(args ...any) *slog.Logger {
+	return defaultLogger.With(args...)
+}
+
+// levelFromString преобразует строковый уровень в slog.Level.
+func levelFromString(s string) slog.Level {
+	switch strings.ToUpper(s) {
+	case "DEBUG":
+		return slog.LevelDebug
+	case "WARN", "WARNING":
+		return slog.LevelWarn
+	case "ERROR":
+		return slog.LevelError
+	default:
+		return slog.LevelInfo
+	}
+}
+
+// InitLogger устанавливает уровень логирования.
+// level — текстовый уровень: "DEBUG", "INFO", "WARN", "ERROR".
 func InitLogger(level string) error {
-	// преобразуем текстовый уровень логирования в zap.AtomicLevel
-	lvl, err := zap.ParseAtomicLevel(level)
-	if err != nil {
-		return err
-	}
-	// создаём новую конфигурацию логера
-	cfg := zap.NewProductionConfig()
-	// устанавливаем уровень
-	cfg.Level = lvl
-	// создаём логер на основе конфигурации
-	zl, err := cfg.Build()
-	if err != nil {
-		return err
-	}
-	// устанавливаем синглтон
-	log = zl
+	lvl := levelFromString(level)
+	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: lvl,
+	})
+	defaultLogger = slog.New(handler)
 	return nil
 }

@@ -6,8 +6,6 @@ import (
 
 	"github.com/Piktet/tg_bot/internal/logger"
 	"github.com/Piktet/tg_bot/internal/model"
-
-	"go.uber.org/zap"
 )
 
 const (
@@ -30,7 +28,7 @@ const (
 // AddUser регистрирует пользователя в базе данных — запоминает его идентификатор.
 func AddUser(ctx context.Context, conn model.Connection, id, chatId int64, name string) error {
 	if err := conn.Execute(ctx, qAddUser, id, chatId, name); err != nil {
-		logger.Log().Error("error AddUser - Query", zap.Error(err))
+		logger.Error(err, "error AddUser - Query")
 		return err
 	}
 	return nil

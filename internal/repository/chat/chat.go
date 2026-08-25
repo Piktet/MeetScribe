@@ -9,11 +9,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"unsafe"
 
 	"github.com/Piktet/tg_bot/internal/logger"
-
-	"go.uber.org/zap"
 )
 
 // Message — сообщение в чате (роль и контент).
@@ -47,7 +44,7 @@ const (
 // GetShort — получить краткую выжимку из текста через GigaChat.
 // host — хост API, token — токен авторизации, text — исходный текст.
 func GetShort(ctx context.Context, host, token string, text []byte) (string, error) {
-	return getData(ctx, host, token, "user", fmt.Sprintf(promptShort, unsafe.String(unsafe.SliceData(text), len(text))))
+	return getData(ctx, host, token, "user", fmt.Sprintf(promptShort, bytes.NewBuffer(text)))
 }
 
 // GetAnswer — получить ответ на вопрос по контексту через GigaChat.
@@ -61,7 +58,7 @@ func GetAnswer(ctx context.Context, host, token, question, context string) (stri
 func getData(ctx context.Context, host, token, role string, content string) (string, error) {
 	u, err := url.JoinPath(host, "/api/v1/chat/completions")
 	if err != nil {
-		logger.Log().Error("getData - create path error", zap.Error(err))
+		logger.Error(err, "getData - create path error")
 		return "", err
 	}
 
@@ -80,7 +77,7 @@ func getData(ctx context.Context, host, token, role string, content string) (str
 
 	r, err := http.NewRequestWithContext(ctx, "POST", u, bytes.NewBuffer(body))
 	if err != nil {
-		logger.Log().Error("UploadVoice - create request", zap.Error(err))
+		logger.Error(err, "UploadVoice - create request")
 		return "", err
 	}
 
@@ -91,7 +88,7 @@ func getData(ctx context.Context, host, token, role string, content string) (str
 	client := &http.Client{}
 	resp, err := client.Do(r)
 	if err != nil {
-		logger.Log().Error("UploadVoice - send request", zap.Error(err))
+		logger.Error(err, "UploadVoice - send request")
 		return "", err
 	}
 
@@ -99,14 +96,14 @@ func getData(ctx context.Context, host, token, role string, content string) (str
 
 	if resp.StatusCode != http.StatusOK {
 		err := errors.New("ошибка авторизации")
-		logger.Log().Error("UploadVoice - get response", zap.Error(err))
+		logger.Error(err, "UploadVoice - get response")
 		return "", err
 	}
 
 	var x ChatResponse
 	dec := json.NewDecoder(resp.Body)
 	if err := dec.Decode(&x); err != nil {
-		logger.Log().Error("UploadVoice - decode result", zap.Error(err))
+		logger.Error(err, "UploadVoice - decode result")
 		return "", err
 	}
 

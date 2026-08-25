@@ -59,12 +59,13 @@ func main() {
 // запускает воркеры для обработки задач распознавания речи и бота.
 func create(ctx context.Context) error {
 
-	config := config.New()
-	if err := logger.InitLogger(config.GetLogLevel()); err != nil {
+	config.Load()
+	cfg := config.New()
+	if err := logger.InitLogger(cfg.GetLogLevel()); err != nil {
 		panic(err)
 	}
 
-	dbConn, err := db.New(config.GetConnectionString())
+	dbConn, err := db.New(cfg.GetConnectionString())
 	if err != nil {
 		return err
 	}
@@ -72,22 +73,22 @@ func create(ctx context.Context) error {
 		return err
 	}
 
-	speachConn := speach.New(config.GetSpeachAuthHost(), config.GetSpeachRQUID(), config.GetSpeachAuthKey())
+	speachConn := speach.New(cfg.GetSpeachAuthHost(), cfg.GetSpeachRQUID(), cfg.GetSpeachAuthKey())
 	if err := speachConn.Connect(ctx); err != nil {
 		return err
 	}
 	speachService := speachservice.New(
 		speachservice.WithSpeach(speachConn),
-		speachservice.WithHost(config.GetSpeachRequestHost()),
+		speachservice.WithHost(cfg.GetSpeachRequestHost()),
 	)
 
-	chatConn := chat.New(config.GetChatAuthHost(), config.GetChatRQUID(), config.GetChatAuthKey())
+	chatConn := chat.New(cfg.GetChatAuthHost(), cfg.GetChatRQUID(), cfg.GetChatAuthKey())
 	if err := chatConn.Connect(ctx); err != nil {
 		return err
 	}
-	chatService := chatservice.New(config.GetChatRequestHost(), chatConn)
+	chatService := chatservice.New(cfg.GetChatRequestHost(), chatConn)
 
-	botService := bot.New(config.GetBotToken(), dbConn, speachService, chatService)
+	botService := bot.New(cfg.GetBotToken(), dbConn, speachService, chatService)
 
 	wg, sendCtx := errgroup.WithContext(ctx)
 	wg.Go(func() error {

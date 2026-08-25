@@ -12,8 +12,6 @@ import (
 
 	"github.com/Piktet/tg_bot/internal/logger"
 	"github.com/Piktet/tg_bot/internal/model"
-
-	"go.uber.org/zap"
 )
 
 // Upload загружает аудиофайл в SaluteSpeech API.
@@ -22,12 +20,12 @@ import (
 func Upload(ctx context.Context, host, token string, data io.Reader) (string, error) {
 	u, err := url.JoinPath(host, "/rest/v1/data:upload")
 	if err != nil {
-		logger.Log().Error("UploadVoice - create path error", zap.Error(err))
+		logger.Error(err, "UploadVoice - create path error")
 		return "", err
 	}
 	r, err := http.NewRequestWithContext(ctx, "POST", u, data)
 	if err != nil {
-		logger.Log().Error("UploadVoice - create request", zap.Error(err))
+		logger.Error(err, "UploadVoice - create request")
 		return "", err
 	}
 
@@ -38,7 +36,7 @@ func Upload(ctx context.Context, host, token string, data io.Reader) (string, er
 	client := &http.Client{}
 	resp, err := client.Do(r)
 	if err != nil {
-		logger.Log().Error("UploadVoice - send request", zap.Error(err))
+		logger.Error(err, "UploadVoice - send request")
 		return "", err
 	}
 
@@ -46,14 +44,14 @@ func Upload(ctx context.Context, host, token string, data io.Reader) (string, er
 
 	if resp.StatusCode != http.StatusOK {
 		err := errors.New(http.StatusText(resp.StatusCode))
-		logger.Log().Error("UploadVoice - get response", zap.Error(err))
+		logger.Error(err, "UploadVoice - get response")
 		return "", err
 	}
 
-	var x model.SpeachUploadResponse
+	var x model.SpeechUploadResponse
 	dec := json.NewDecoder(resp.Body)
 	if err := dec.Decode(&x); err != nil {
-		logger.Log().Error("UploadVoice - decode result", zap.Error(err))
+		logger.Error(err, "UploadVoice - decode result")
 		return "", err
 	}
 
@@ -71,7 +69,7 @@ func Upload(ctx context.Context, host, token string, data io.Reader) (string, er
 func CreateTask(ctx context.Context, host, token, fileID string) (string, string, model.ResultStatusType, error) {
 	u, err := url.JoinPath(host, "rest/v1/speech:async_recognize")
 	if err != nil {
-		logger.Log().Error("CreateTask - create path error", zap.Error(err))
+		logger.Error(err, "CreateTask - create path error")
 		return "", "", model.SpeachResultStatusEmpty, err
 	}
 	data, err := json.Marshal(model.SpeachCreateTaskRequest{
@@ -82,7 +80,7 @@ func CreateTask(ctx context.Context, host, token, fileID string) (string, string
 	})
 	r, err := http.NewRequestWithContext(ctx, "POST", u, bytes.NewReader(data))
 	if err != nil {
-		logger.Log().Error("connection to speach - create request", zap.Error(err))
+		logger.Error(err, "connection to speach - create request")
 		return "", "", model.SpeachResultStatusEmpty, err
 	}
 	r.Header.Set("Authorization", "Bearer "+token)
@@ -92,7 +90,7 @@ func CreateTask(ctx context.Context, host, token, fileID string) (string, string
 	client := &http.Client{}
 	resp, err := client.Do(r)
 	if err != nil {
-		logger.Log().Error("CreateTask - send request", zap.Error(err))
+		logger.Error(err, "CreateTask - send request")
 		return "", "", model.SpeachResultStatusEmpty, err
 	}
 
@@ -100,7 +98,7 @@ func CreateTask(ctx context.Context, host, token, fileID string) (string, string
 
 	if resp.StatusCode != http.StatusOK {
 		err := errors.New(http.StatusText(resp.StatusCode))
-		logger.Log().Error("CreateTask - get response", zap.Error(err))
+		logger.Error(err, "CreateTask - get response")
 		return "", "", model.SpeachResultStatusEmpty, err
 	}
 
@@ -116,12 +114,12 @@ func GetStatus(ctx context.Context, host, token, taskID string) (string, model.R
 
 	u, err := url.JoinPath(host, "/rest/v1/task:get", taskID)
 	if err != nil {
-		logger.Log().Error("UploadVoice - create path error", zap.Error(err))
+		logger.Error(err, "UploadVoice - create path error")
 		return "", model.SpeachResultStatusEmpty, false, err
 	}
 	r, err := http.NewRequestWithContext(ctx, "GET", u, nil)
 	if err != nil {
-		logger.Log().Error("UploadVoice - create request", zap.Error(err))
+		logger.Error(err, "UploadVoice - create request")
 		return "", model.SpeachResultStatusEmpty, false, err
 	}
 
@@ -131,7 +129,7 @@ func GetStatus(ctx context.Context, host, token, taskID string) (string, model.R
 	client := &http.Client{}
 	resp, err := client.Do(r)
 	if err != nil {
-		logger.Log().Error("UploadVoice - send request", zap.Error(err))
+		logger.Error(err, "UploadVoice - send request")
 		return "", model.SpeachResultStatusEmpty, false, err
 	}
 
@@ -139,7 +137,7 @@ func GetStatus(ctx context.Context, host, token, taskID string) (string, model.R
 
 	if resp.StatusCode != http.StatusOK {
 		err := errors.New(http.StatusText(resp.StatusCode))
-		logger.Log().Error("UploadVoice - get response", zap.Error(err))
+		logger.Error(err, "UploadVoice - get response")
 		switch resp.StatusCode {
 		case http.StatusInternalServerError:
 			return "", model.SpeachResultStatusEmpty, true, err
@@ -163,7 +161,7 @@ func Download(ctx context.Context, host, token, fileID string) ([]byte, error) {
 
 	u, err := url.JoinPath(host, "rest/v1/data:download")
 	if err != nil {
-		logger.Log().Error("Download - create path error", zap.Error(err))
+		logger.Error(err, "Download - create path error")
 		return nil, err
 	}
 
@@ -172,7 +170,7 @@ func Download(ctx context.Context, host, token, fileID string) ([]byte, error) {
 
 	r, err := http.NewRequestWithContext(ctx, "GET", u+"?"+v.Encode(), nil)
 	if err != nil {
-		logger.Log().Error("Download - create request", zap.Error(err))
+		logger.Error(err, "Download - create request")
 		return nil, err
 	}
 
@@ -182,7 +180,7 @@ func Download(ctx context.Context, host, token, fileID string) ([]byte, error) {
 	client := &http.Client{}
 	resp, err := client.Do(r)
 	if err != nil {
-		logger.Log().Error("Download - send request", zap.Error(err))
+		logger.Error(err, "Download - send request")
 		return nil, err
 	}
 
@@ -190,13 +188,13 @@ func Download(ctx context.Context, host, token, fileID string) ([]byte, error) {
 
 	if resp.StatusCode != http.StatusOK {
 		err := errors.New(http.StatusText(resp.StatusCode))
-		logger.Log().Error("Download - get response", zap.Error(err))
+		logger.Error(err, "Download - get response")
 		return nil, err
 	}
 
 	x, err := io.ReadAll(resp.Body)
 	if err != nil {
-		logger.Log().Error("Download - read body", zap.Error(err))
+		logger.Error(err, "Download - read body")
 		return nil, err
 
 	}
@@ -209,7 +207,7 @@ func parseStatus(body io.Reader) (string, string, model.ResultStatusType, error)
 	var x model.SpeachCreateTaskResponse
 	dec := json.NewDecoder(body)
 	if err := dec.Decode(&x); err != nil {
-		logger.Log().Error("CreateTask - decode result", zap.Error(err))
+		logger.Error(err, "CreateTask - decode result")
 		return "", "", model.SpeachResultStatusEmpty, err
 	}
 

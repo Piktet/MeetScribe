@@ -2,18 +2,15 @@
 package bot
 
 import (
-	"bytes"
 	"context"
 	"strconv"
 	"strings"
 	"time"
-	"unsafe"
 
 	"github.com/Piktet/tg_bot/internal/logger"
 	"github.com/Piktet/tg_bot/internal/model"
 	"github.com/Piktet/tg_bot/internal/repository/db"
 
-	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	tele "gopkg.in/telebot.v3"
 )
@@ -54,7 +51,7 @@ func (p *Bot) Start(ctx context.Context, cnt, size int) error {
 func (p *Bot) addCommand(c tele.Context, cmd *Command) error {
 	select {
 	case p.chCommand <- cmd:
-		logger.Log().Info("command added", zap.String("name", cmd.Name))
+		logger.Info("command added", "name", cmd.Name)
 		return nil
 	default:
 		return c.Send("try later")
@@ -204,7 +201,8 @@ func (p *Bot) HandlerOnText(c tele.Context) error {
 				User:   c.Sender().ID,
 				ChatID: c.Chat().ID,
 				Name:   "text_" + time.Now().Format("2006-01-02_15:04:05"),
-				Input:  bytes.NewReader(unsafe.Slice(unsafe.StringData(c.Message().Text), len(c.Message().Text)))})
+				Input:  strings.NewReader(c.Message().Text),
+			})
 			return nil
 		}})
 }

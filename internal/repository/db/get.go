@@ -7,8 +7,6 @@ import (
 
 	"github.com/Piktet/tg_bot/internal/logger"
 	"github.com/Piktet/tg_bot/internal/model"
-
-	"go.uber.org/zap"
 )
 
 const (
@@ -27,7 +25,7 @@ const (
 func GetUserTranscriptions(ctx context.Context, conn model.Connection, userID int64) ([]*model.Transcription, error) {
 	rows, err := conn.Query(ctx, qGetUserTranscriptions, userID)
 	if err != nil {
-		logger.Log().Error("error GetUserTranscriptions - Query", zap.Error(err))
+		logger.Error(err, "error GetUserTranscriptions - Query")
 		return nil, err
 	}
 	defer rows.Close()
@@ -37,14 +35,14 @@ func GetUserTranscriptions(ctx context.Context, conn model.Connection, userID in
 	for rows.Next() {
 		var t model.Transcription
 		if err := rows.Scan(&t.ID, &t.Name, &t.Status, &t.CreatedAt); err != nil {
-			logger.Log().Error("error GetUserTranscriptions - Scan", zap.Error(err))
+			logger.Error(err, "error GetUserTranscriptions - Scan")
 			return nil, err
 		}
 		t.UserID = userID
 		transcriptions = append(transcriptions, &t)
 	}
 	if rows.Err() != nil {
-		logger.Log().Error("error GetUserTranscriptions - Rows error", zap.Error(rows.Err()))
+		logger.Error(rows.Err(), "error GetUserTranscriptions - Rows error")
 		return nil, rows.Err()
 	}
 
@@ -56,7 +54,7 @@ func GetUserTranscriptions(ctx context.Context, conn model.Connection, userID in
 func GetTranscriptionByID(ctx context.Context, conn model.Connection, userID, transcriptionID int64) (*model.Transcription, error) {
 	rows, err := conn.Query(ctx, qGetTranscriptionByID, transcriptionID)
 	if err != nil {
-		logger.Log().Error("error GetTranscriptionByID - Query", zap.Error(err))
+		logger.Error(err, "error GetTranscriptionByID - Query")
 		return nil, err
 	}
 	defer rows.Close()
@@ -69,7 +67,7 @@ func GetTranscriptionByID(ctx context.Context, conn model.Connection, userID, tr
 		&t.ID, &t.UserID, &t.ChatID, &t.Name, &t.FilePath, &t.OutputFileID,
 		&t.TaskID, &t.Transcription, &t.Summary, &t.Status, &t.CreatedAt, &t.UpdatedAt,
 	); err != nil {
-		logger.Log().Error("error GetTranscriptionByID - Scan", zap.Error(err))
+		logger.Error(err, "error GetTranscriptionByID - Scan")
 		return nil, err
 	}
 
@@ -79,7 +77,7 @@ func GetTranscriptionByID(ctx context.Context, conn model.Connection, userID, tr
 	}
 
 	if rows.Err() != nil {
-		logger.Log().Error("error GetTranscriptionByID - Rows error", zap.Error(rows.Err()))
+		logger.Error(rows.Err(), "error GetTranscriptionByID - Rows error")
 		return nil, rows.Err()
 	}
 
@@ -91,7 +89,7 @@ func GetTranscriptionByID(ctx context.Context, conn model.Connection, userID, tr
 func SearchTranscriptions(ctx context.Context, conn model.Connection, userID int64, query string) ([]*model.Transcription, error) {
 	rows, err := conn.Query(ctx, qSearchTranscriptions, userID, query)
 	if err != nil {
-		logger.Log().Error("error SearchTranscriptions - Query", zap.Error(err))
+		logger.Error(err, "error SearchTranscriptions - Query")
 		return nil, err
 	}
 	defer rows.Close()
@@ -101,14 +99,14 @@ func SearchTranscriptions(ctx context.Context, conn model.Connection, userID int
 	for rows.Next() {
 		var t model.Transcription
 		if err := rows.Scan(&t.ID, &t.Name, &t.Status, &t.CreatedAt); err != nil {
-			logger.Log().Error("error SearchTranscriptions - Scan", zap.Error(err))
+			logger.Error(err, "error SearchTranscriptions - Scan")
 			return nil, err
 		}
 		t.UserID = userID
 		transcriptions = append(transcriptions, &t)
 	}
 	if rows.Err() != nil {
-		logger.Log().Error("error SearchTranscriptions - Rows error", zap.Error(rows.Err()))
+		logger.Error(rows.Err(), "error SearchTranscriptions - Rows error")
 		return nil, rows.Err()
 	}
 
