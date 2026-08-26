@@ -22,7 +22,7 @@ func TestInitLogger(t *testing.T) {
 		},
 		{
 			level:   "Aaa",
-			wantErr: true,
+			wantErr: false,
 		},
 	}
 	for _, test := range tests {

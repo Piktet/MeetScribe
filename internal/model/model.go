@@ -78,21 +78,10 @@ type SpeechCreateTaskOptionRequest struct {
 	AudioEncoding string `json:"audio_encoding"`
 }
 
-// SpeachCreateTaskOptionRequest — параметры создания задачи распознавания.
-type SpeachCreateTaskOptionRequest struct {
-	AudioEncoding string `json:"audio_encoding"`
-}
-
 // SpeechCreateTaskRequest — запрос на создание задачи распознавания речи.
 type SpeechCreateTaskRequest struct {
 	FileID  string                        `json:"request_file_id"`
 	Options SpeechCreateTaskOptionRequest `json:"options"`
-}
-
-// SpeachCreateTaskRequest — запрос на создание задачи распознавания речи.
-type SpeachCreateTaskRequest struct {
-	FileID  string                        `json:"request_file_id"`
-	Options SpeachCreateTaskOptionRequest `json:"options"`
 }
 
 // SpeechCreateTaskResultResponse — результат создания задачи.
@@ -105,26 +94,10 @@ type SpeechCreateTaskResultResponse struct {
 	Error   string              `json:"error,omitempty"`
 }
 
-// SpeachCreateTaskResultResponse — результат создания задачи.
-type SpeachCreateTaskResultResponse struct {
-	ID      string           `json:"id"`
-	Created string           `json:"created_at"`
-	Updated string           `json:"updated_at"`
-	Status  ResultStatusType `json:"status"`
-	FileID  string           `json:"response_file_id,omitempty"`
-	Error   string           `json:"error,omitempty"`
-}
-
 // SpeechCreateTaskResponse — ответ API на создание задачи.
 type SpeechCreateTaskResponse struct {
 	Status int                            `json:"status"`
 	Result SpeechCreateTaskResultResponse `json:"result"`
-}
-
-// SpeachCreateTaskResponse — ответ API на создание задачи.
-type SpeachCreateTaskResponse struct {
-	Status int                            `json:"status"`
-	Result SpeachCreateTaskResultResponse `json:"result"`
 }
 
 // TranscriptionTaskData — данные для задачи распознавания.

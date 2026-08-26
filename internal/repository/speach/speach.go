@@ -72,9 +72,9 @@ func CreateTask(ctx context.Context, host, token, fileID string) (string, string
 		logger.Error(err, "CreateTask - create path error")
 		return "", "", model.SpeachResultStatusEmpty, err
 	}
-	data, err := json.Marshal(model.SpeachCreateTaskRequest{
+	data, err := json.Marshal(model.SpeechCreateTaskRequest{
 		FileID: fileID,
-		Options: model.SpeachCreateTaskOptionRequest{
+		Options: model.SpeechCreateTaskOptionRequest{
 			AudioEncoding: "PCM_S16LE",
 		},
 	})
@@ -204,7 +204,7 @@ func Download(ctx context.Context, host, token, fileID string) ([]byte, error) {
 // parseStatus парсит ответ API задачи распознавания.
 func parseStatus(body io.Reader) (string, string, model.ResultStatusType, error) {
 
-	var x model.SpeachCreateTaskResponse
+	var x model.SpeechCreateTaskResponse
 	dec := json.NewDecoder(body)
 	if err := dec.Decode(&x); err != nil {
 		logger.Error(err, "CreateTask - decode result")
