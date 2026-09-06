@@ -120,8 +120,9 @@ var (
 		configCountSpeach:         {defaultValue: defaultCountSpeach, flagName: []string{"p"}, envName: "COUNT_SPEECH", description: "количество потоков речи", source: sourceDefault, valueType: valueInt},
 		configStatusRequestPeriod: {defaultValue: defaultStatusRequestPeriod, flagName: []string{"q"}, envName: "STATUS_REQUEST_PERIOD", description: "период опроса статуса", source: sourceDefault, valueType: valueDuration},
 
-		configLogLevel:   {defaultValue: defaultLogLevel, flagName: []string{"l"}, envName: "LOG_LEVEL", description: "уровень логирования", valueType: valueString},
-		configConfigFile: {defaultValue: "", flagName: []string{"c", "config"}, envName: "CONFIG", description: "файл конфигурации", valueType: valueString},
+		configLogLevel:      {defaultValue: defaultLogLevel, flagName: []string{"l"}, envName: "LOG_LEVEL", description: "уровень логирования", valueType: valueString},
+		configConfigFile:    {defaultValue: "", flagName: []string{"c", "config"}, envName: "CONFIG", description: "файл конфигурации", valueType: valueString},
+		configDBConnAddress: {defaultValue: "", flagName: []string{"w", "db"}, envName: "DATABASE_DSN", description: "строка  подкючения к базе данных", valueType: valueString},
 	}
 )
 
@@ -133,9 +134,14 @@ type Config struct {
 // Load выполняет регистрацию флагов, парсинг, загрузку из env и config-файла.
 // Вызывать один раз до создания Config через New().
 func Load() {
-	for _, v := range configData {
+	// Обратная карта: имя флага -> ключ конфигурации.
+	flagToConfig := make(map[string]configType, len(configData))
+	for k, v := range configData {
 		v.value = v.defaultValue
 		v.source = sourceDefault
+		for _, f := range v.flagName {
+			flagToConfig[f] = k
+		}
 		switch v.valueType {
 		case valueString:
 			for _, f := range v.flagName {
@@ -163,7 +169,8 @@ func Load() {
 	flag.Parse()
 
 	flag.Visit(func(flagValue *flag.Flag) {
-		if v, ok := configData[configType(flagValue.Name)]; ok {
+		if name, ok := flagToConfig[flagValue.Name]; ok {
+			v := configData[name]
 			v.source = sourceFlag
 			switch v.valueType {
 			case valueString:
@@ -173,8 +180,9 @@ func Load() {
 			case valueInt:
 				v.value, _ = strconv.Atoi(flagValue.Value.String())
 			case valueDuration:
-				val, _ := strconv.ParseInt(flagValue.Value.String(), 10, 64)
-				v.value = time.Duration(val)
+				if d, err := time.ParseDuration(flagValue.Value.String()); err == nil {
+					v.value = d
+				}
 			}
 		}
 	})
@@ -193,7 +201,9 @@ func Load() {
 							case valueBool:
 								item.value = v.(bool)
 							case valueInt:
-								item.value = v.(int)
+								if f, ok := v.(float64); ok {
+									item.value = int(f)
+								}
 							case valueDuration:
 								item.value = v.(time.Duration)
 							}

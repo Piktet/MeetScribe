@@ -3,7 +3,6 @@ package model
 
 import (
 	"context"
-	"database/sql"
 	"io"
 	"time"
 )
@@ -138,14 +137,36 @@ type FileInfo struct {
 	CreatedAt     time.Time
 }
 
+// Rows — абстракция над sql.Rows для тестирования.
+type Rows interface {
+	// Close закрывает набор результатов.
+	Close() error
+	// Columns возвращает имена колонок.
+	Columns() ([]string, error)
+	// Next переходит к следующей записи.
+	Next() bool
+	// Scan копирует значения текущей записи в переданные указатели.
+	Scan(dest ...any) error
+	// Err возвращает ошибку, если она возникла при итерации.
+	Err() error
+}
+
+// Tx — абстракция над sql.Tx для тестирования.
+type Tx interface {
+	// Commit завершает транзакцию.
+	Commit() error
+	// Rollback откатывает транзакцию.
+	Rollback() error
+}
+
 // Connection — интерфейс подключения к БД.
 type Connection interface {
 	// Query выполняет SELECT-запрос.
-	Query(context.Context, string, ...any) (*sql.Rows, error)
+	Query(context.Context, string, ...any) (Rows, error)
 	// Execute выполняет команду (INSERT, UPDATE, DELETE, CREATE).
 	Execute(context.Context, string, ...any) error
 	// BeginTx начинает новую транзакцию.
-	BeginTx(context.Context) (*sql.Tx, error)
+	BeginTx(context.Context) (Tx, error)
 }
 
 // SpeechClient — абстрактный клиент для распознавания речи.
